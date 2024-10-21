@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:notes_app/widgets/custom_search_icon.dart';
 
 class CustomAppBar extends StatelessWidget {
   const CustomAppBar({super.key});
@@ -20,27 +21,6 @@ class CustomAppBar extends StatelessWidget {
           child: CustomSearchIcon(),
         )
       ],
-    );
-  }
-}
-
-class CustomSearchIcon extends StatelessWidget {
-  const CustomSearchIcon({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 46,
-      width: 46,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(14),
-        color: Colors.white.withOpacity(.07),
-      ),
-      child: Center(
-          child: Icon(
-        Icons.search,
-        size: 26,
-      )),
     );
   }
 }
