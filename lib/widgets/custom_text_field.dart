@@ -12,17 +12,19 @@ class CustomTextField extends StatelessWidget {
       cursorColor: KPrimaryColor,
       maxLines: maxLines,
       decoration: InputDecoration(
-          hintText: hint,
-          hintStyle: TextStyle(),
-          border: buildBorder(),
-          enabledBorder: buildBorder(),
-          focusedBorder: buildBorder(Colors.lightBlueAccent[200])),
+        hintText: hint,
+        hintStyle: TextStyle(),
+        border: buildBorder(),
+        enabledBorder: buildBorder(),
+        focusedBorder: buildBorder(Colors.lightBlueAccent[200]),
+      ),
     );
   }
 
-  OutlineInputBorder buildBorder([color]) {
+  OutlineInputBorder buildBorder([Color? color]) {
     return OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: color ?? Colors.white));
+      borderRadius: BorderRadius.circular(8),
+      borderSide: BorderSide(color: color ?? Colors.white),
+    );
   }
 }
