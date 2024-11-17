@@ -12,12 +12,19 @@ class AddNoteBottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // استخدام MediaQuery هنا مباشرة سيكون آمنًا
     return BlocProvider(
       create: (context) => AddNoteCubit(),
       child: BlocBuilder<AddNoteCubit, AddNoteState>(
         builder: (context, state) {
           return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: EdgeInsets.only(
+              left: 16,
+              right: 16,
+              bottom: MediaQuery.of(context)
+                  .viewInsets
+                  .bottom, // استخدام MediaQuery هنا ضمن build
+            ),
             child: SingleChildScrollView(child: AddNoteForm()),
           );
         },
@@ -37,9 +44,20 @@ class _AddNoteFormState extends State<AddNoteForm> {
   final GlobalKey<FormState> formKey = GlobalKey();
   AutovalidateMode autovalidateMode = AutovalidateMode.disabled;
   String? title, subTitle;
+  double bottomInset = 0; // سنقوم بتخزين قيمة الـ bottomInset هنا
 
   @override
   Widget build(BuildContext context) {
+    // تأجيل الوصول إلى MediaQuery بعد بناء الشجرة باستخدام addPostFrameCallback
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final newBottomInset = MediaQuery.of(context).viewInsets.bottom;
+      if (newBottomInset != bottomInset) {
+        setState(() {
+          bottomInset = newBottomInset; // تحديث الـ state بالقيمة الجديدة
+        });
+      }
+    });
+
     return Form(
       key: formKey,
       autovalidateMode: autovalidateMode,
@@ -64,7 +82,7 @@ class _AddNoteFormState extends State<AddNoteForm> {
           BlocBuilder<AddNoteCubit, AddNoteState>(
             builder: (context, state) {
               return customButton(
-                isLoading: state is AddNoteLoading ? true : false,
+                isLoading: state is AddNoteLoading,
                 onTap: () {
                   if (formKey.currentState!.validate()) {
                     formKey.currentState!.save();
@@ -77,8 +95,8 @@ class _AddNoteFormState extends State<AddNoteForm> {
                     BlocProvider.of<AddNoteCubit>(context)
                         .addNote(noteModel)
                         .then((_) {
-                      // إغلاق الـ BottomSheet بعد إضافة الملاحظة بنجاح
-                      Navigator.pop(context);
+                      Navigator.pop(
+                          context); // إغلاق الـ BottomSheet بعد إضافة الملاحظة
                     });
                   } else {
                     autovalidateMode = AutovalidateMode.always;
