@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart'; // استيراد المكتبة
 import 'package:notes_app/constance.dart';
+import 'package:notes_app/cubits/add_note_cubit/add_note_cubit.dart';
+import 'package:notes_app/model/note_model.dart';
 import 'package:notes_app/widgets/custom_bottom.dart';
 import 'package:notes_app/widgets/custom_text_field.dart';
 
@@ -8,9 +12,16 @@ class AddNoteBottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: SingleChildScrollView(child: AddNoteForm()),
+    return BlocProvider(
+      create: (context) => AddNoteCubit(),
+      child: BlocBuilder<AddNoteCubit, AddNoteState>(
+        builder: (context, state) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: SingleChildScrollView(child: AddNoteForm()),
+          );
+        },
+      ),
     );
   }
 }
@@ -26,6 +37,7 @@ class _AddNoteFormState extends State<AddNoteForm> {
   final GlobalKey<FormState> formKey = GlobalKey();
   AutovalidateMode autovalidateMode = AutovalidateMode.disabled;
   String? title, subTitle;
+
   @override
   Widget build(BuildContext context) {
     return Form(
@@ -33,18 +45,14 @@ class _AddNoteFormState extends State<AddNoteForm> {
       autovalidateMode: autovalidateMode,
       child: Column(
         children: [
-          SizedBox(
-            height: 32,
-          ),
+          const SizedBox(height: 32),
           CustomTextField(
             onSaved: (value) {
               title = value;
             },
             hint: "title",
           ),
-          SizedBox(
-            height: 16,
-          ),
+          const SizedBox(height: 16),
           CustomTextField(
             onSaved: (value) {
               subTitle = value;
@@ -52,22 +60,35 @@ class _AddNoteFormState extends State<AddNoteForm> {
             hint: "content",
             maxLines: 4,
           ),
-          SizedBox(
-            height: 50,
-          ),
-          customButton(
-            onTap: () {
-              if (formKey.currentState!.validate()) {
-                formKey.currentState!.save();
-              } else {
-                autovalidateMode = AutovalidateMode.always;
-                setState(() {});
-              }
+          const SizedBox(height: 50),
+          BlocBuilder<AddNoteCubit, AddNoteState>(
+            builder: (context, state) {
+              return customButton(
+                isLoading: state is AddNoteLoading ? true : false,
+                onTap: () {
+                  if (formKey.currentState!.validate()) {
+                    formKey.currentState!.save();
+                    var noteModel = NoteModel(
+                      title: title!,
+                      subTitle: subTitle!,
+                      date: DateTime.now().toString(),
+                      color: Colors.blue.value,
+                    );
+                    BlocProvider.of<AddNoteCubit>(context)
+                        .addNote(noteModel)
+                        .then((_) {
+                      // إغلاق الـ BottomSheet بعد إضافة الملاحظة بنجاح
+                      Navigator.pop(context);
+                    });
+                  } else {
+                    autovalidateMode = AutovalidateMode.always;
+                    setState(() {});
+                  }
+                },
+              );
             },
           ),
-          SizedBox(
-            height: 40,
-          ),
+          const SizedBox(height: 40),
         ],
       ),
     );
