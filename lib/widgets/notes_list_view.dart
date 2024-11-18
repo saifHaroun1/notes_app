@@ -9,8 +9,12 @@ class NotesListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<NotesCubit, NotesState>(
+    return BlocConsumer<NotesCubit, NotesState>(
+      listener: (context, state) {
+        // يمكنك التعامل مع التغييرات هنا
+      },
       builder: (context, state) {
+        // الوصول إلى الـ NotesCubit و الحصول على البيانات
         List<NoteModel> notes =
             BlocProvider.of<NotesCubit>(context).notes ?? [];
         return Padding(
@@ -21,7 +25,9 @@ class NotesListView extends StatelessWidget {
             itemBuilder: (context, index) {
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 4),
-                child: const NoteItem(),
+                child: NoteItem(
+                  note: notes[index],
+                ),
               );
             },
           ),
