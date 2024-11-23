@@ -11,18 +11,24 @@ import 'package:notes_app/views/notes_view.dart';
 void main() async {
   await Hive.initFlutter();
 
-  // تأكد من تسجيل المحول (Adapter) قبل فتح الـ Box
+  // تسجيل Adapter
   Hive.registerAdapter(NoteModelAdapter());
 
-  // الآن افتح الـ Box
+  // فتح الـ Box
   await Hive.openBox<NoteModel>(kNotesBox);
 
   Bloc.observer = SimpleBlocObserve();
 
-  // ضع BlocProvider هنا لتغطية جميع الشاشات
   runApp(
-    BlocProvider(
-      create: (context) => NotesCubit(), // تأكد من إنشاء NotesCubit هنا
+    MultiBlocProvider(
+      providers: [
+        BlocProvider<NotesCubit>(
+          create: (context) => NotesCubit()..fetchAllNote(),
+        ),
+        BlocProvider<AddNoteCubit>(
+          create: (context) => AddNoteCubit(),
+        ),
+      ],
       child: const NotesApp(),
     ),
   );

@@ -11,26 +11,17 @@ class AddNoteBottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // استخدم BlocProvider للحصول على NotesCubit من السياق الحالي
-    final notesCubit = BlocProvider.of<NotesCubit>(context);
+    final notesCubit = context
+        .read<NotesCubit>(); // استخدم context.read() بدلاً من BlocProvider.of()
 
-    return BlocProvider(
-      create: (context) => AddNoteCubit(),
-      child: BlocBuilder<AddNoteCubit, AddNoteState>(
-        builder: (context, state) {
-          return Padding(
-            padding: EdgeInsets.only(
-              left: 16,
-              right: 16,
-              bottom: MediaQuery.of(context)
-                  .viewInsets
-                  .bottom, // التعديل عند فتح الكيبورد
-            ),
-            child: SingleChildScrollView(
-              child: AddNoteForm(notesCubit: notesCubit),
-            ),
-          );
-        },
+    return Padding(
+      padding: EdgeInsets.only(
+        left: 16,
+        right: 16,
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+      ),
+      child: SingleChildScrollView(
+        child: AddNoteForm(notesCubit: notesCubit),
       ),
     );
   }
@@ -80,17 +71,33 @@ class _AddNoteFormState extends State<AddNoteForm> {
                 onTap: () {
                   if (formKey.currentState!.validate()) {
                     formKey.currentState!.save();
+                    String formattedDate =
+                        DateTime.now().toString().substring(0, 10);
                     var noteModel = NoteModel(
                       title: title!,
                       subTitle: subTitle!,
-                      date: DateTime.now().toString(),
+                      date: formattedDate,
                       color: Colors.blue.value,
                     );
-                    BlocProvider.of<AddNoteCubit>(context)
+
+                    // إضافة الملاحظة باستخدام AddNoteCubit
+                    context
+                        .read<AddNoteCubit>()
                         .addNote(noteModel, widget.notesCubit)
                         .then((_) {
-                      Navigator.pop(context);
+                      // بعد إضافة الملاحظة، تحديث الملاحظات في NotesCubit
+                      widget.notesCubit.fetchAllNote();
                     });
+
+                    // BlocProvider.of<AddNoteCubit>(context)
+                    //     .addNote(noteModel, widget.notesCubit)
+                    //     .then((_) {
+                    //   // بعد إضافة الملاحظة، تحديث الملاحظات في NotesCubit
+                    //   widget.notesCubit.fetchAllNote();
+                    // });
+
+                    // إغلاق الـ bottom sheet بعد إضافة الملاحظة
+                    Navigator.pop(context);
                   } else {
                     setState(() {
                       autovalidateMode = AutovalidateMode.always;

@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:flutter/material.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:meta/meta.dart';
 import 'package:notes_app/constance.dart';
@@ -15,7 +16,9 @@ class AddNoteCubit extends Cubit<AddNoteState> {
     try {
       var notesBox = await _getNotesBox();
       await notesBox.add(note);
-      notesCubit.fetchAllNote(); // تحديث البيانات بعد الإضافة
+      debugPrint("in box ${notesBox.values.last.title}");
+      debugPrint("added note to the box is :${note.title}");
+      await notesCubit.fetchAllNote(); // تحديث البيانات بعد الإضافة
       emit(AddNoteSuccess());
     } catch (e) {
       print('Error adding note: $e'); // طباعة الخطأ لتشخيصه

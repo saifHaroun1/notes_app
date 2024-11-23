@@ -9,18 +9,33 @@ class NotesViewBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Column(
-        children: [
-          SizedBox(
-            height: 50,
+    return Scaffold(
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            pinned: true, // تثبيت الـ AppBar أثناء التمرير
+            backgroundColor: Theme.of(context)
+                .appBarTheme
+                .backgroundColor, // نفس لون الـ AppBar
+            expandedHeight: 150.0,
+            flexibleSpace: FlexibleSpaceBar(
+              title: Text("Notes"),
+              background: Container(
+                color: Theme.of(context)
+                    .appBarTheme
+                    .backgroundColor, // نفس اللون خلفية
+              ),
+            ),
           ),
-          CustomAppBar(
-            icon: Icons.search,
-            title: "Notes",
+          SliverList(
+            delegate: SliverChildListDelegate([
+              // هنا تضع المكونات التي تريد أن تظهر أسفل الـ AppBar عند التمرير
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: NotesListView(), // استخدم قائمة الملاحظات الخاصة بك
+              ),
+            ]),
           ),
-          Expanded(child: NotesListView())
         ],
       ),
     );

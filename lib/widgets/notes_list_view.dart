@@ -9,29 +9,20 @@ class NotesListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<NotesCubit, NotesState>(
-      listener: (context, state) {
-        // يمكنك التعامل مع التغييرات هنا
-      },
+    return BlocBuilder<NotesCubit, NotesState>(
       builder: (context, state) {
-        // الوصول إلى الـ NotesCubit و الحصول على البيانات
-        List<NoteModel> notes =
-            BlocProvider.of<NotesCubit>(context).notes ?? [];
-        return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 15),
-          child: ListView.builder(
+        debugPrint("the state is $state");
+        if (state is NotesUpdated) {
+          debugPrint("new list builder");
+          var notes = state.notes;
+          debugPrint("in second box in list view ${state.notes.last.title}");
+          return ListView.builder(
             itemCount: notes.length,
-            padding: EdgeInsets.zero,
-            itemBuilder: (context, index) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4),
-                child: NoteItem(
-                  note: notes[index],
-                ),
-              );
-            },
-          ),
-        );
+            itemBuilder: (context, index) => NoteItem(note: notes[index]),
+          );
+        } else {
+          return const Center(child: CircularProgressIndicator());
+        }
       },
     );
   }
